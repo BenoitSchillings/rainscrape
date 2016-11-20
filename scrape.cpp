@@ -43,18 +43,51 @@ static size_t WriteMemoryCallback(void* contents,
     return realsize;
 }
 
+//-----------------------------------------------------------------------------------
+
+void handle_time(tinyxml2::XMLElement *p)
+{
+	//printf("got time\n");
+}
+
+//-----------------------------------------------------------------------------------
+
+void handle_parameters(tinyxml2::XMLElement *p)
+{
+	//printf("got param\n");
+}
+
+//-----------------------------------------------------------------------------------
 
 void process(MemoryStruct *mem)
 {
-    printf("process %f %f (%d)\n", mem->lat, mem->lon, mem->size);
+    printf("process %f %f (%lu)\n", mem->lat, mem->lon, mem->size);
     if (mem->size > 0) { 
     
 	tinyxml2::XMLDocument doc;
     	doc.Parse(mem->memory);
    	if (doc.ErrorID() == 0) {	
-   		tinyxml2::XMLPrinter printer;
-		doc.Print( &printer );
-		exit(-1);	
+   		//tinyxml2::XMLPrinter printer;
+		//doc.Print( &printer );
+		//printf("%s\n", printer.CStr());	
+	   	tinyxml2::XMLElement *elem = doc.FirstChildElement();
+   		//printf("a name %s\n", elem->Name());	
+		elem = elem->FirstChildElement();
+		//printf("b name %s\n", elem->Name());	
+		do {
+			elem = elem->NextSiblingElement(); 
+			//printf("name %s\n", elem->Name());
+		} while(strcmp(elem->Name(), "data") != 0);	
+		
+		tinyxml2::XMLElement *data;
+
+		data = elem->FirstChildElement();
+		do {
+			//printf("data name %s\n", data->Name());
+			if (strcmp(data->Name(), "time-layout") == 0) handle_time(data);
+			if (strcmp(data->Name(), "parameters") == 0) handle_parameters(data);	
+			data = data->NextSiblingElement();	
+		} while(data != 0);	
 	} 
     }
 }
